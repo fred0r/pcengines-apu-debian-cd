@@ -41,9 +41,9 @@ case "${OSCODE}" in
             export PATH
             # debian-cd can no longer obtain 32-bit UEFI files from the
             # i386 installer; disable them for trixie and newer.
-            UEFI_32=0
-            export UEFI_32
-            echo "simple-cdd trixie workaround applied (skipping i386 installer, UEFI_32=0)." 1>&2
+            DISABLE_UEFI_32=1
+            export DISABLE_UEFI_32
+            echo "simple-cdd trixie workaround applied (skipping i386 installer, DISABLE_UEFI_32=1)." 1>&2
         fi
         ;;
 esac
