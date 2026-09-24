@@ -37,8 +37,8 @@ The default hostname is set to "apu", unless DHCP delivers a different
 name. Default root password is "pcengines", and it is defined in
 "profiles/apu64.preseed".
 
-The default localization is German: locale de_DE.UTF-8, keyboard "de",
-country DE, and time zone Europe/Berlin. These are set in
+The default localization is English: locale en_US.UTF-8, keyboard "us",
+language "en", country DE, and time zone Europe/Berlin. These are set in
 "profiles/apu64.conf" (locale, keyboard, KERNEL_PARAMS) and
 "profiles/apu64.preseed".
 
@@ -72,9 +72,9 @@ the debian mirror, the hostname and password, and it allows you to
 choose the disk partitioning that you need. You can also configure
 software RAID if you have multiple physical disks.
 
-The manual profile also preselects German localization (de_DE.UTF-8,
-keyboard "de", country DE, time zone Europe/Berlin), while leaving the
-partitioning interactive.
+The manual profile also preselects English localization (en_US.UTF-8,
+keyboard "us", language "en", country DE, time zone Europe/Berlin),
+while leaving the partitioning interactive.
 
 The manual profile does not install the fstrim cronjob.
 
