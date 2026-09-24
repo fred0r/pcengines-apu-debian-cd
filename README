@@ -145,16 +145,27 @@ mkdir /opt/pcengines
 cd /opt/pcengines
 git clone -b trixie https://github.com/fred0r/pcengines-apu-debian-cd.git .
 
-## build the installation CD image. If you need to build another ISO
-# image of a different architecture inside the same path, delete the
-# contents of "tmp/" subdirectory. Run the following command as anormal
+## build the installation CD image. Run the following command as a normal
 # user. If you run it as root, use "--force-root" option:
 
 ./build apu64
 
-# In case of a failure, delete the contents of tmp/ subfolder.
-# Sometimes problems with accessing the mirror leave garbage in tmp/
-# and this breaks the execution of build-simple-cdd
+# The downloaded Debian mirror is cached outside the working tree, in
+# $HOME/.cache/pcengines-apu/<codename>-amd64/mirror (override with the
+# PCENGINES_CACHE environment variable). It survives "rm -rf tmp", and
+# simple-cdd skips already-downloaded files, so repeated builds do not
+# re-download everything. Only the debian-cd working tree in tmp/ is
+# rebuilt each time.
+
+# For a completely fresh build (delete tmp/ AND the mirror cache):
+./build --clean apu64
+
+# In case of a failure, you can delete just the debian-cd working tree:
+#   rm -rf tmp
+# ...or wipe everything, including the mirror cache:
+#   ./build --clean apu64
+# The old advice was to always delete tmp/ on failure; the mirror now
+# lives in the cache, so deleting tmp/ no longer forces a re-download.
 
 ## insert the USB stick into the build machine
 

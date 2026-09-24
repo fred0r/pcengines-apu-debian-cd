@@ -1,9 +1,18 @@
 #!/bin/sh
 
-PROFILE=$1
+CLEAN=0
+PROFILE=
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --clean|-c) CLEAN=1 ;;
+        *) PROFILE=$1 ;;
+    esac
+    shift
+done
 
 if [ x${PROFILE} = x ]; then
-    echo "Usage: $0 PROFILE" 1>&2;
+    echo "Usage: $0 [--clean] PROFILE" 1>&2;
     exit 1
 fi
 
@@ -22,6 +31,30 @@ if [ x${OSCODE} = x ]; then
     echo "Cannot determine OS codename" 1>&2;
     exit 1
 fi
+
+# Keep the (expensive) local Debian mirror outside tmp/, so it survives
+# "rm -rf tmp" and is reused across builds. Only the debian-cd working tree
+# is rebuilt on each run; simple-cdd skips already-downloaded files (checksum
+# match) and updates the mirror incrementally.
+CACHE_BASE="${PCENGINES_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/pcengines-apu}"
+CACHE_DIR="${CACHE_BASE}/${OSCODE}-amd64"
+MIRROR_CACHE="${CACHE_DIR}/mirror"
+
+if [ "${CLEAN}" = 1 ]; then
+    echo "Cleaning tmp/ and mirror cache (${CACHE_DIR})..." 1>&2
+    rm -rf tmp "${CACHE_DIR}"
+fi
+
+# One-time migration: seed the cache from an existing tmp/mirror so the first
+# build after this change does not re-download everything.
+if [ ! -e "${MIRROR_CACHE}" ] && [ -d tmp/mirror ]; then
+    mkdir -p "${CACHE_DIR}"
+    mv tmp/mirror "${MIRROR_CACHE}"
+fi
+
+simple_cdd_mirror="${MIRROR_CACHE}"
+MIRROR="${MIRROR_CACHE}"
+export simple_cdd_mirror MIRROR
 
 # simple-cdd 0.6.9 (shipped in Debian trixie) unconditionally mirrors the
 # i386 installer for amd64 builds, and expects the 32-bit UEFI boot files
