@@ -5,6 +5,13 @@ d-i debian-installer/add-kernel-opts string video=off\
 # Skip creation of a normal user account.
 d-i passwd/make-user boolean false
 
+d-i debian-installer/locale string de_DE.UTF-8
+d-i debian-installer/language string de
+d-i debian-installer/country string DE
+
+d-i keyboard-configuration/xkb-keymap select de
+d-i console-setup/ask_detect boolean false
+
 # Prompt for hostname
 d-i netcfg/get_hostname string apu
 d-i netcfg/get_hostname seen false
@@ -18,9 +25,11 @@ d-i clock-setup/utc boolean true
 d-i clock-setup/ntp boolean true
 d-i clock-setup/ntp-server string pool.ntp.org
 
+d-i time/zone string Europe/Berlin
+
 tasksel tasksel/first multiselect ssh-server
 d-i pkgsel/upgrade select none
-d-i pkgsel/include string ntp hdparm net-tools
+d-i pkgsel/include string chrony hdparm net-tools
 
 # Allow non-free firmware
 d-i hw-detect/load_firmware boolean true

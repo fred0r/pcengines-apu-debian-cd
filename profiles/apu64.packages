@@ -1,9 +1,9 @@
 net-tools
-ntp
+chrony
 wireless-tools
 wpasupplicant
 iw
 hdparm
 smartmontools
-dnsutils
+bind9-dnsutils
 zstd

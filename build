@@ -12,7 +12,11 @@ if [ ! -e profiles/${PROFILE}.conf ]; then
     exit 1
 fi
 
-OSCODE=`lsb_release -c | awk '{print $2}'`
+OSCODE=`lsb_release -c 2>/dev/null | awk '{print $2}'`
+
+if [ x${OSCODE} = x ] && [ -r /etc/os-release ]; then
+    OSCODE=`awk -F= '/^VERSION_CODENAME=/{gsub(/"/, "", $2); print $2}' /etc/os-release`
+fi
 
 if [ x${OSCODE} = x ]; then
     echo "Cannot determine OS codename" 1>&2;

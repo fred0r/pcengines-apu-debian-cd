@@ -18,8 +18,9 @@ The configuration files build amd64 installer for the APU platform (APU
 versions 1, 2, and 3 have been tested).
 
 The build machine MUST be of the same Debian release as the image that
-you are building: a Jessie host can produce a Jessie ISO, and a Stretch
-host can produce a Stretch ISO.
+you are building: a Bookworm host can produce a Bookworm ISO, and a
+Trixie host can produce a Trixie ISO. The current configuration targets
+Debian 13 (trixie).
 
 Before using these scripts, have a look at the files in profiles/, and
 you may want to change some options.
@@ -34,6 +35,11 @@ This profile is designed to automate as much as possible.
 
 The default hostname is set to "apu", unless DHCP delivers a different
 name. Default root password is "pcengines", and it is defined in
+"profiles/apu64.preseed".
+
+The default localization is German: locale de_DE.UTF-8, keyboard "de",
+country DE, and time zone Europe/Berlin. These are set in
+"profiles/apu64.conf" (locale, keyboard, KERNEL_PARAMS) and
 "profiles/apu64.preseed".
 
 By default, the installer asks for the host name (this is the only thing
@@ -65,6 +71,10 @@ This profile disables the automation, and lets you choose the region,
 the debian mirror, the hostname and password, and it allows you to
 choose the disk partitioning that you need. You can also configure
 software RAID if you have multiple physical disks.
+
+The manual profile also preselects German localization (de_DE.UTF-8,
+keyboard "de", country DE, time zone Europe/Berlin), while leaving the
+partitioning interactive.
 
 The manual profile does not install the fstrim cronjob.
 
@@ -101,7 +111,7 @@ SSD drive.
 
 !!! ALL EXISTING DATA ON THE DRIVE WILL BE LOST !!!
 
-Debian Bookworm caveat: you need to select "Install Debian" in the
+Debian Trixie caveat: you need to select "Install Debian" in the
 Grub menu manually. Also, the installation takes significantly longer
 than for previous releases.
 
@@ -121,7 +131,7 @@ apt-get install -y simple-cdd git xorriso lsb-release mtools
 ## get our latest files
 mkdir /opt/pcengines
 cd /opt/pcengines
-git clone https://github.com/ssinyagin/pcengines-apu-debian-cd.git .
+git clone -b trixie https://github.com/fred0r/pcengines-apu-debian-cd.git .
 
 ## build the installation CD image. If you need to build another ISO
 # image of a different architecture inside the same path, delete the
@@ -140,7 +150,7 @@ git clone https://github.com/ssinyagin/pcengines-apu-debian-cd.git .
 fdisk -l
 
 ## copy the installer CD image
-dd if=images/debian-9.1-amd64-CD-1.iso of=/dev/sdc bs=16M
+dd if=images/debian-13.x-amd64-CD-1.iso of=/dev/sdc bs=16M
 
 ## Insert the USB stick into APU board and connect a serial terminal at
 ## 115200 baud rate.  The terminal emulator should be vt220 or xterm
