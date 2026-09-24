@@ -27,6 +27,11 @@ d-i clock-setup/ntp-server string pool.ntp.org
 
 d-i time/zone string Europe/Berlin
 
+# Do not ask to scan additional installation media (answer: No)
+d-i apt-setup/cdrom/set-first boolean false
+d-i apt-setup/cdrom/set-next boolean false
+d-i apt-setup/cdrom/set-failed boolean false
+
 tasksel tasksel/first multiselect ssh-server
 d-i pkgsel/upgrade select none
 d-i pkgsel/include string chrony hdparm net-tools

@@ -100,6 +100,16 @@ d-i mirror/http/hostname string deb.debian.org
 d-i mirror/http/directory string /debian
 d-i mirror/http/proxy string
 
+# Do not ask to scan additional installation media (answer: No)
+d-i apt-setup/cdrom/set-first boolean false
+d-i apt-setup/cdrom/set-next boolean false
+d-i apt-setup/cdrom/set-failed boolean false
+# Avoid the follow-on apt-setup prompts
+d-i apt-setup/services-select multiselect security, updates
+d-i apt-setup/non-free-firmware boolean false
+d-i apt-setup/non-free boolean false
+d-i apt-setup/contrib boolean false
+
 tasksel tasksel/first multiselect ssh-server
 d-i pkgsel/upgrade select none
 
