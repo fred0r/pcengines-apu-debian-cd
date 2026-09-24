@@ -115,6 +115,18 @@ Debian Trixie caveat: you need to select "Install Debian" in the
 Grub menu manually. Also, the installation takes significantly longer
 than for previous releases.
 
+Debian Trixie build caveat: trixie ships simple-cdd 0.6.9, which tries
+to mirror the i386 installer for amd64 builds. Trixie no longer provides
+an i386 installer, so that download fails with a 404. The "build" script
+detects this and transparently works around it (skips the i386 installer
+and disables 32-bit UEFI boot files). The clean long-term fix is to
+upgrade the build host to simple-cdd 0.6.10 or newer, for example:
+
+    cd /tmp
+    wget https://deb.debian.org/debian/pool/main/s/simple-cdd/simple-cdd_0.6.10_all.deb \
+         https://deb.debian.org/debian/pool/main/s/simple-cdd/python3-simple-cdd_0.6.10_all.deb
+    apt-get install ./python3-simple-cdd_0.6.10_all.deb ./simple-cdd_0.6.10_all.deb
+
 Both the build machine and the APU board need the Internet connection
 during the installation. The installer assumes that enp1s0 (marked as
 LAN1 on the APU board) is connected to a network with DHCP service and

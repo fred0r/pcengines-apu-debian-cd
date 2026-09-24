@@ -23,6 +23,31 @@ if [ x${OSCODE} = x ]; then
     exit 1
 fi
 
+# simple-cdd 0.6.9 (shipped in Debian trixie) unconditionally mirrors the
+# i386 installer for amd64 builds, and expects the 32-bit UEFI boot files
+# from it. Trixie dropped the i386 installer, so the build fails with a 404
+# on dists/trixie/main/installer-i386. Both issues are fixed in simple-cdd
+# 0.6.10; work around them here until the build host is upgraded.
+case "${OSCODE}" in
+    trixie|forky|sid)
+        BUILD_SIMPLE_CDD=`command -v build-simple-cdd 2>/dev/null`
+        if [ -n "${BUILD_SIMPLE_CDD}" ] && \
+           grep -q -F 'if a == "amd64" and "i386" not in self.env.get("ARCHES"):' "${BUILD_SIMPLE_CDD}"; then
+            mkdir -p tmp/bin
+            sed 's/if a == "amd64" and "i386" not in self.env.get("ARCHES"):/if False and a == "amd64" and "i386" not in self.env.get("ARCHES"):/' \
+                "${BUILD_SIMPLE_CDD}" > tmp/bin/build-simple-cdd
+            chmod 755 tmp/bin/build-simple-cdd
+            PATH="`pwd`/tmp/bin:${PATH}"
+            export PATH
+            # debian-cd can no longer obtain 32-bit UEFI files from the
+            # i386 installer; disable them for trixie and newer.
+            UEFI_32=0
+            export UEFI_32
+            echo "simple-cdd trixie workaround applied (skipping i386 installer, UEFI_32=0)." 1>&2
+        fi
+        ;;
+esac
+
 if [ `id -u` -eq 0 ]; then
     ROOT_CMDOPTS='--force-root'
 else
@@ -40,6 +65,12 @@ if [ -e profiles/${PROFILE}.prerun ]; then
        exit 1
    fi
 fi
+
+# Always target amd64, regardless of the build host architecture. The
+# profile .conf is read after the environment, so it still takes precedence.
+ARCH=amd64
+ARCHES=amd64
+export ARCH ARCHES
 
 build-simple-cdd --conf profiles/${PROFILE}.conf \
     --dist ${OSCODE} ${ROOT_CMDOPTS}
