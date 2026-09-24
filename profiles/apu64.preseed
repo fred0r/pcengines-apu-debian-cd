@@ -11,9 +11,11 @@ d-i passwd/make-user boolean false
 # from being shown, even if values come from dhcp.
 d-i netcfg/get_hostname string apu
 
-d-i netcfg/get_hostname seen false
+# Do not prompt for the hostname: the APU is headless (no serial console),
+# so the installation must run fully unattended.
+#d-i netcfg/get_hostname seen false
 
-d-i netcfg/choose_interface select enp1s0
+d-i netcfg/choose_interface select auto
 
 # Automatically label the disk without asking
 d-i partman-auto/choose_recipe select boot-root
@@ -22,6 +24,9 @@ d-i partman/choose_partition select finish
 d-i partman/confirm boolean true
 d-i partman/confirm_nooverwrite boolean true
 d-i partman-auto/disk string /dev/sda
+# Install to the internal mSATA (non-removable) disk, never to the USB
+# stick we are booting from. /dev/sda above is only a fallback.
+d-i partman/early_command string for d in $(list-devices disk); do if [ "$(cat /sys/block/$(basename $d)/removable 2>/dev/null)" = 0 ]; then debconf-set partman-auto/disk "$d"; break; fi; done
 d-i partman-auto/purge_lvm_from_device boolean true
 d-i partman-lvm/confirm boolean true
 
@@ -102,6 +107,10 @@ d-i pkgsel/upgrade select none
 d-i netcfg/wireless_wep string
 # Allow non-free firmware
 d-i hw-detect/load_firmware boolean true
+
+# Allow root SSH login with the password above, so the headless APU can be
+# reached after installation (there is no serial console to log in on).
+d-i preseed/late_command string in-target sed -i -e 's/^[#[:space:]]*PermitRootLogin.*/PermitRootLogin yes/' -e 's/^[#[:space:]]*PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
 
 ### halt when finished
 d-i debian-installer/exit/halt boolean true
