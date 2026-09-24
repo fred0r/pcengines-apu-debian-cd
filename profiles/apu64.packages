@@ -7,3 +7,4 @@ hdparm
 smartmontools
 bind9-dnsutils
 zstd
+pppoeconf
