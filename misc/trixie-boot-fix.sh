@@ -14,8 +14,9 @@
 # invisibly and un-preseeded. The menu also defaults to the graphical
 # installer, which cannot run on a serial-only console.
 #
-# This hook makes the text "Install" entry the default and drops the
-# speech auto-boot override.
+# This hook makes the text "Install" entry the default, drops the speech
+# auto-boot override, and removes the accessibility/speech-synthesis menu
+# entries (whose autoboot countdown beeps the PC speaker).
 
 TDIR=$1
 DISKNUM=$3
@@ -43,6 +44,20 @@ fi
 #    only rewrites TIMEOUT lines, so this survives.
 if [ -f "$dir/isolinux.cfg" ] && ! grep -q '^default install$' "$dir/isolinux.cfg"; then
     echo 'default install' >> "$dir/isolinux.cfg"
+fi
+
+# 4. Drop the accessibility/speech-synthesis menu entries. Their
+#    "menu autoboot ... speech synthesis will be started in N seconds"
+#    countdown is what beeps the PC speaker repeatedly on an otherwise
+#    unattended boot. The plain Install / Advanced / Dark / Rescue entries
+#    (and the default Install entry) are kept.
+if [ -f "$dir/menu.cfg" ]; then
+    sed -i \
+        -e '/^[[:space:]]*include[[:space:]]\+spkgtk\.cfg[[:space:]]*$/d' \
+        -e '/^[[:space:]]*include[[:space:]]\+spk\.cfg[[:space:]]*$/d' \
+        -e '/^[[:space:]]*include[[:space:]]\+adspkgtk\.cfg[[:space:]]*$/d' \
+        -e '/^[[:space:]]*include[[:space:]]\+adspk\.cfg[[:space:]]*$/d' \
+        "$dir/menu.cfg"
 fi
 
 exit 0

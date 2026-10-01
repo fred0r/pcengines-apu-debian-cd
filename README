@@ -111,9 +111,11 @@ SSD drive.
 
 !!! ALL EXISTING DATA ON THE DRIVE WILL BE LOST !!!
 
-Debian Trixie caveat: you need to select "Install Debian" in the
-Grub menu manually. Also, the installation takes significantly longer
-than for previous releases.
+Debian Trixie note: the APU uses coreboot/SeaBIOS (BIOS only, no UEFI),
+so the ISO is built BIOS-only. It auto-boots the text "Install" entry
+after a few seconds (no manual selection), and the accessibility/
+speech-synthesis menu entries are removed. The installation takes
+significantly longer than for previous releases.
 
 Debian Trixie build caveat: trixie ships simple-cdd 0.6.9, which tries
 to mirror the i386 installer for amd64 builds. Trixie no longer provides
@@ -128,11 +130,11 @@ upgrade the build host to simple-cdd 0.6.10 or newer, for example:
     apt-get install ./python3-simple-cdd_0.6.10_all.deb ./simple-cdd_0.6.10_all.deb
 
 Both the build machine and the APU board need the Internet connection
-during the installation. The installer assumes that enp1s0 (marked as
-LAN1 on the APU board) is connected to a network with DHCP service and
-Internet access.
+during the installation. The installer auto-detects the network interface
+(the LAN1 port is normally enp1s0) and expects DHCP service and Internet
+access.
 
-The installation ISO image is about 200MB in size.
+The installation ISO image is about 450MB in size.
 
 Create the CD image on the build machine:
 
