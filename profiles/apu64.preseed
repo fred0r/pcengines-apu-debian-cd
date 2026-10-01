@@ -1,6 +1,6 @@
 # set the deadline scheduler globally for better SSD performance
 d-i debian-installer/add-kernel-opts string video=off\
- elevator=deadline console=ttyS0,115200
+ elevator=deadline console=ttyS0,115200n8
 
 # Skip creation of a normal user account.
 d-i passwd/make-user boolean false

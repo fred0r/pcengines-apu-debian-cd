@@ -60,4 +60,9 @@ if [ -f "$dir/menu.cfg" ]; then
         "$dir/menu.cfg"
 fi
 
+# 5. The APU is headless (serial only): force "vga=off" instead of the
+#    framebuffer modes in every installer menu entry. simple-cdd's later
+#    "s,vga=788,vga=normal," substitution becomes a no-op after this.
+sed -i -e 's/vga=788/vga=off/g' -e 's/vga=normal/vga=off/g' "$dir"/*.cfg
+
 exit 0
