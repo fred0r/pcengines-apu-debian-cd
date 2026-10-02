@@ -36,13 +36,22 @@ fi
 # "rm -rf tmp" and is reused across builds. Only the debian-cd working tree
 # is rebuilt on each run; simple-cdd skips already-downloaded files (checksum
 # match) and updates the mirror incrementally.
+#
+# The cache is keyed by codename, arch and mirror components: changing
+# mirror_components invalidates the reprepro database, so a separate mirror
+# is used instead of corrupting or failing on the existing one.
 CACHE_BASE="${PCENGINES_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/pcengines-apu}"
-CACHE_DIR="${CACHE_BASE}/${OSCODE}-amd64"
+COMPONENTS=`sh -c ". ./profiles/${PROFILE}.conf; printf '%s' \"\$mirror_components\""`
+if [ x"${COMPONENTS}" = x ]; then
+    COMPONENTS=main
+fi
+COMPONENT_SLUG=`printf '%s' "${COMPONENTS}" | tr ' ' '-'`
+CACHE_DIR="${CACHE_BASE}/${OSCODE}-amd64-${COMPONENT_SLUG}"
 MIRROR_CACHE="${CACHE_DIR}/mirror"
 
 if [ "${CLEAN}" = 1 ]; then
-    echo "Cleaning tmp/ and mirror cache (${CACHE_DIR})..." 1>&2
-    rm -rf tmp "${CACHE_DIR}"
+    echo "Cleaning tmp/ and mirror cache (${CACHE_BASE}/${OSCODE}-amd64*)..." 1>&2
+    rm -rf tmp "${CACHE_BASE}/${OSCODE}-amd64"*
 fi
 
 # One-time migration: seed the cache from an existing tmp/mirror so the first
@@ -67,7 +76,8 @@ case "${OSCODE}" in
         if [ -n "${BUILD_SIMPLE_CDD}" ] && \
            grep -q -F 'if a == "amd64" and "i386" not in self.env.get("ARCHES"):' "${BUILD_SIMPLE_CDD}"; then
             mkdir -p tmp/bin
-            sed 's/if a == "amd64" and "i386" not in self.env.get("ARCHES"):/if False and a == "amd64" and "i386" not in self.env.get("ARCHES"):/' \
+            sed -e 's/if a == "amd64" and "i386" not in self.env.get("ARCHES"):/if False and a == "amd64" and "i386" not in self.env.get("ARCHES"):/' \
+                -e 's/bg_pkgfile = \[os.path.join(i, "Packages.gz") for i in packages_dirs if i != pathname\]/bg_pkgfile = [os.path.join(i, "Packages.gz") for i in packages_dirs if i != pathname and os.path.exists(os.path.join(i, "Packages.gz"))]/' \
                 "${BUILD_SIMPLE_CDD}" > tmp/bin/build-simple-cdd
             chmod 755 tmp/bin/build-simple-cdd
             PATH="`pwd`/tmp/bin:${PATH}"
@@ -76,7 +86,7 @@ case "${OSCODE}" in
             # i386 installer; disable them for trixie and newer.
             DISABLE_UEFI_32=1
             export DISABLE_UEFI_32
-            echo "simple-cdd trixie workaround applied (skipping i386 installer, DISABLE_UEFI_32=1)." 1>&2
+            echo "simple-cdd trixie workaround applied (skip i386 installer, DISABLE_UEFI_32=1, skip empty-component distcheck)." 1>&2
         fi
         ;;
 esac

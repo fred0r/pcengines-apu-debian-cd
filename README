@@ -153,18 +153,26 @@ git clone -b trixie https://github.com/fred0r/pcengines-apu-debian-cd.git .
 ./build apu64
 
 # The downloaded Debian mirror is cached outside the working tree, in
-# $HOME/.cache/pcengines-apu/<codename>-amd64/mirror (override with the
-# PCENGINES_CACHE environment variable). It survives "rm -rf tmp", and
-# simple-cdd skips already-downloaded files, so repeated builds do not
-# re-download everything. Only the debian-cd working tree in tmp/ is
-# rebuilt each time.
+# $HOME/.cache/pcengines-apu/<codename>-amd64-<components>/mirror (override
+# with the PCENGINES_CACHE environment variable). The components part of the
+# path is derived from "mirror_components", so changing that setting uses a
+# separate mirror instead of corrupting the existing reprepro database. It
+# survives "rm -rf tmp", and simple-cdd skips already-downloaded files, so
+# repeated builds do not re-download everything. Only the debian-cd working
+# tree in tmp/ is rebuilt each time.
+#
+# All Debian components (main contrib non-free non-free-firmware) are
+# enabled, so a package from any of them can be added to the profile's
+# .packages/.downloads and still be installed. The non-free firmware
+# metapackage (firmware-linux-nonfree) is included on the CD (not installed;
+# debian-installer's hw-detect can use it during the installation).
 
 # For a completely fresh build (delete tmp/ AND the mirror cache):
 ./build --clean apu64
 
 # In case of a failure, you can delete just the debian-cd working tree:
 #   rm -rf tmp
-# ...or wipe everything, including the mirror cache:
+# ...or wipe everything, including the mirror cache (all component variants):
 #   ./build --clean apu64
 # The old advice was to always delete tmp/ on failure; the mirror now
 # lives in the cache, so deleting tmp/ no longer forces a re-download.
